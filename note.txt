@@ -1,0 +1,77 @@
+//only Entity Framework
+            var db = new MyDbContext();
+
+            ////show all data from database
+            var booknamelist1 = db.bookList;
+            foreach (var item in booknamelist1)
+            {
+                item.Display();
+            }
+            //show data with condition
+            var booknamelist2 = db.bookList.Where(x => x.Id == "101").FirstOrDefault();
+            booknamelist2.Display();
+
+            //insert
+            Book book = new Book() { Id = "111", Name = "c#", Author = "nick", Stock = 80 };
+            db.Add(book);
+            db.SaveChanges();
+
+            //update way 1
+            Book book1 = db.bookList.Where(x => x.Id == "111").FirstOrDefault();
+            book1.Stock = 100;
+            db.SaveChanges();
+            //update way 2
+            db.bookList.Where(x => x.Id == "111").FirstOrDefault().Stock = 300;
+            db.SaveChanges();
+
+
+            //delete way 1
+            Book book2 = db.bookList.Where(x => x.Id == "111").FirstOrDefault();
+            db.Remove(book2);
+            db.SaveChanges();
+            //delete way 2
+            db.Remove(db.bookList.Where(x => x.Id == "111").FirstOrDefault());
+            db.SaveChangesAsync();
+
+
+
+//entity framework using generics
+
+    class EfWithGenerics<T> where T : class
+    {
+        private MyDbContext db;
+        private DbSet<T> dbSet;
+        
+        public EfWithGenerics()
+        {
+            db = new MyDbContext();
+            dbSet = db.Set<T>();
+        }
+
+
+        public void Insert(T obj)
+        {
+            dbSet.Add(obj);
+        }
+
+        public void Remove(T obj)
+        {
+            dbSet.Remove(obj);
+        }
+
+        public void Update(T obj)
+        {
+            dbSet.Attach(obj);
+            db.Entry(obj).State = EntityState.Modified;
+        }
+        public IEnumerable<T> GetAll()
+        {
+            return dbSet;
+        }
+        public void Save()
+        {
+            db.SaveChanges();
+        }
+
+    }
+==========================
